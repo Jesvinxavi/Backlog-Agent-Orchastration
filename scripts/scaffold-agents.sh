@@ -105,11 +105,15 @@ fi
 if [ ! -f "backlog/config.yml" ] && [ ! -d "backlog" ]; then
     echo "✨ Initializing Backlog Project..."
     # Run init --defaults to get the skeleton
-    npx backlog.md init --defaults > /dev/null 2>&1 || true
+    if ! npx backlog.md init --defaults 2>&1; then
+        echo "   ⚠️  Backlog init had issues (continuing anyway)..."
+    fi
 fi
 
+echo "📁 Creating project structure..."
 mkdir -p .agent/{skills,workflows,cache}
 mkdir -p backlog/{docs,decisions,tasks,specs,templates}
+echo "   ✅ Directories created"
 
 # =================================================================================
 # 3. Source Acquisition
@@ -121,14 +125,22 @@ if [ -d "$LOCAL_DEV_PATH" ]; then
     mkdir -p "$SOURCE_DIR"
     cp -R "$LOCAL_DEV_PATH/"* "$SOURCE_DIR/"
 else
-    echo "🌐 attempting to clone from GitHub ($REPO_URL)..."
+    echo "🌐 Fetching skills from GitHub..."
     if [ -d "$SOURCE_DIR/.git" ]; then
-        echo "🔄 Updating existing source..."
-        cd "$SOURCE_DIR" && git pull origin main && cd - > /dev/null
+        echo "   🔄 Updating existing source..."
+        cd "$SOURCE_DIR" && git pull origin main && cd - > /dev/null || {
+            echo "   ⚠️  Git pull failed. Using existing cached source."
+        }
     else
-        echo "📥 Cloning fresh source..."
+        echo "   📥 Cloning fresh source..."
         rm -rf "$SOURCE_DIR"
-        git clone "$REPO_URL" "$SOURCE_DIR"
+        if ! git clone --depth 1 "$REPO_URL" "$SOURCE_DIR" 2>&1; then
+            echo "   ❌ Error: Failed to clone repository."
+            echo "      URL: $REPO_URL"
+            echo "      Please check your internet connection."
+            exit 1
+        fi
+        echo "   ✅ Source acquired"
     fi
 fi
 
