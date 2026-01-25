@@ -102,17 +102,12 @@ main() {
     fi
 
     # =================================================================================
-    # 2. Initialize Backlog Project
+    # 2. Create Project Structure
     # =================================================================================
-
-    # Ensure basic structure exists first
-    if [ ! -f "backlog/config.yml" ] && [ ! -d "backlog" ]; then
-        echo "✨ Initializing Backlog Project..."
-        # Run init --defaults to get the skeleton
-        if ! npx backlog.md init --defaults 2>&1; then
-            echo "   ⚠️  Backlog init had issues (continuing anyway)..."
-        fi
-    fi
+    # Note: We skip `npx backlog.md init` because:
+    # 1. It prompts for input which breaks curl|bash
+    # 2. We create all needed directories below
+    # 3. We copy our own optimized config.yml from the source
 
     echo "📁 Creating project structure..."
     mkdir -p .agent/{skills,workflows,cache}
