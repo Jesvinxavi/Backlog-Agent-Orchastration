@@ -22,8 +22,10 @@ Analyze completed work to improve future performance.
 
 ### 1. Task Analysis
 Ask yourself:
-- What was the original goal?
-- Did I achieve it completely?
+- **Plan vs Reality:** Did I follow the implementation plan exactly?
+- **Checklist Integrity:** Did I mark every `- [ ]` item as done? If I skipped one, did I update the text to explain why?
+- **Deviations:** If I changed the approach, added extra steps, or skipped steps, I **MUST** record these clearly.
+- Did I achieve the goal completely?
 - What unexpected challenges arose?
 
 ### 2. Quality Assessment
@@ -40,9 +42,10 @@ Identify:
 - Successful patterns (candidate for skill creation)
 - Knowledge gaps (candidate for KNOWLEDGE.md)
 - Process friction (candidate for workflow creation)
+- **Future Feature Ideas** (candidate for `POTENTIAL-FUTURE-FEATURES.md`)
 
 ### 4. Knowledge Capture
-If lesson is valuable, append to `backlog/KNOWLEDGE.md`:
+If lesson is valuable, append to `docs/KNOWLEDGE.md`:
 
 ```markdown
 ## [Category]
@@ -54,6 +57,12 @@ If lesson is valuable, append to `backlog/KNOWLEDGE.md`:
 ## Reflection Template
 
 ```markdown
+## Plan Deviations
+- **[Step X]**: Changed approach because...
+- **[Added]**: Added extra step for...
+- **[Skipped]**: Skipped step because...
+*If none, write "None".*
+
 ## Reflection: Task [ID]
 
 ### What Went Well
@@ -71,6 +80,11 @@ If lesson is valuable, append to `backlog/KNOWLEDGE.md`:
 ### Follow-up Actions
 - [ ] Update skill X with new pattern
 - [ ] Create workflow for process Y
+- [ ] Add new ideas to `POTENTIAL-FUTURE-FEATURES.md`
+
+### Potential Future Features
+- Idea 1 (→ Added to POTENTIAL-FUTURE-FEATURES.md)
+- Idea 2
 ```
 
 ---
@@ -86,9 +100,30 @@ If lesson is valuable, append to `backlog/KNOWLEDGE.md`:
 
 ---
 
-## Integration with /finish-task
+## Modes of Operation
 
-Add this step to the finish-task workflow:
-1. Before marking task Done, run self-reflection
-2. Capture at least one lesson learned
-3. Update KNOWLEDGE.md if applicable
+### 1. Task Mode (via `/commit-task`)
+- **Goal:** Capture granular details while fresh in context.
+- **Output:** Append to the specific **Task Document** (`backlog/tasks/task-X.md`).
+- **Do NOT** write to `KNOWLEDGE.md` yet (avoids noise).
+
+### 2. Spec Mode (via `/finish-spec`)
+- **Goal:** Synthesize high-level patterns from multiple tasks.
+- **Input:** Read `backlog/tasks/*.md` to find "Lessons Learned" from Task Mode.
+- **Output:** Consolidate and write to **Project Knowledge** (`docs/KNOWLEDGE.md`).
+
+---
+
+## Integration with Workflows
+
+### In `/commit-task`
+1. Run self-reflection on the current task.
+2. **Record Deviations:** Append `## Plan Deviations` if any.
+3. **Record Reflection:** Append `## Reflection` to the bottom of the task markdown file.
+4. Changes are staged and committed in the main atomic commit.
+
+### In `/finish-spec`
+1. Read all task files associated with the spec.
+2. Extract insights from their "Reflection" sections.
+3. Filter for project-wide relevance (vs one-off operational details).
+4. Append high-value lessons to `docs/KNOWLEDGE.md`.

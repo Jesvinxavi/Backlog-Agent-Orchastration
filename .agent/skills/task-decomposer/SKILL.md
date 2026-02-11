@@ -92,6 +92,7 @@ Act as a Senior Architect. Don't just ask "what do you want?". Ask "what have yo
 2.  **UI & UX Details:** Interactions, error states, responsiveness.
 3.  **Risk & Concerns:** "What if the API fails?", "What if user is offline?"
 4.  **Strategic Tradeoffs:** Quality vs Speed, Flexibility vs Simplicity.
+5.  **Scope Control:** "Is this a 'nice-to-have' that should be moved to `POTENTIAL-FUTURE-FEATURES.md`?"
 
 #### 3. The Loop (Continual Interview)
 ```
@@ -112,6 +113,27 @@ Break into independent pieces:
 - [ ] Backend/database changes  
 - [ ] Configuration changes
 - [ ] Documentation updates
+
+---
+
+## Step 3.5: Milestone Determination (Phase-Aware)
+
+**Check if the request maps to an IMPLEMENTATION-PLAN.md phase:**
+
+| Request Type | Milestone Action |
+|--------------|------------------|
+| **Full Phase** (e.g., "Phase 1: Oracle Cloud Infrastructure") | **Create Milestone** for that phase |
+| **Partial work in existing Phase** | **Ask user** which milestone to add tasks to |
+| **Standalone feature** (not tied to a phase) | **No milestone** (unless > 10 tasks) |
+
+**Clarifying Question Template (for non-phase work):**
+> "These tasks relate to [topic]. Should they belong to an existing milestone?
+> - **A)** Add to [list existing milestones]
+> - **B)** Create new milestone for this feature
+> - **C)** No milestone (standalone tasks)"
+
+**For JezOS Project:**
+Always check `docs/planning/IMPLEMENTATION-PLAN.md` to see if the request maps to a defined Phase (1-8). If yes, create a milestone named after that phase.
 
 ---
 
@@ -138,6 +160,30 @@ Format for task file:
 - [ ] Subtask 2 (effort: M, depends on 1)
 - [ ] Subtask 3 (effort: S)
 ```
+
+---
+
+## Step 5.5: Determine Verification Mode (CRITICAL for Autonomous Execution)
+
+**Purpose:** Set the `verification:` frontmatter field so `/execute-spec` knows whether to STOP for manual review.
+
+| Verification Mode | When to Set | Examples |
+|-------------------|-------------|----------|
+| `auto` | Build passing = task verified. No subjective checks needed. | Backend logic, refactoring, config changes, documentation, utility functions |
+| `manual` | Requires human eyes. Subjective or visual output. | UI/CSS changes, new pages, mobile responsiveness, user-facing flows, design polish |
+
+**Decision Logic:**
+1.  Does the task involve **any** of these?
+    *   UI components, styling, layout
+    *   User-facing text or copy
+    *   Mobile/responsive design
+    *   Animation or transitions
+    *   Subjective "look and feel"
+2.  **If YES to any:** `verification: manual`
+3.  **If NO to all:** `verification: auto`
+
+> [!WARNING]
+> **When in doubt, set `verification: manual`.** It is better to pause for human review than to ship a broken UI.
 
 ---
 
@@ -171,12 +217,24 @@ Format for task file:
 - Component A
 - Component B
 
+### Context & Detailed Actions
+- **Spec/Phase:** [Link to Spec or Implementation Plan Phase]
+- **Dependent Actions:** [Copy checklist from Implementation Plan if applicable]
+
+### Expected Outcome
+- [What success looks like for this specific task]
+
+### Verification Plan
+- [ ] [Automated/Manual verification step]
+- [ ] [From Implementation Plan if applicable]
+
 ### Subtasks
 1. **[Subtask 1]** - [Description] (effort: S)
 2. **[Subtask 2]** - [Description] (effort: M)
 
 ### Risks/Unknowns
 - [Any remaining uncertainties]
+
 ```
 
 ---
@@ -229,5 +287,5 @@ Your decomposition is "good enough" when:
 > - ❌ Running commands
 > - ❌ Starting implementation
 > 
-> After decomposition, **return control to the workflow**. Implementation happens via `/start-task`.
+> After decomposition, **return control to the workflow**. The workflow will generate files, **commit them**, and prepare for `/start-task`.
 

@@ -111,7 +111,8 @@ main() {
 
     echo "📁 Creating project structure..."
     mkdir -p .agent/{skills,workflows,cache}
-    mkdir -p backlog/{docs,decisions,tasks,specs,templates}
+    mkdir -p backlog/{docs,decisions,tasks,templates}
+    mkdir -p docs/{planning,architecture}
     echo "   ✅ Directories created"
 
     # =================================================================================
@@ -204,11 +205,10 @@ main() {
     PROJECT_NAME=$(basename "$(pwd)")
     if [ -f "backlog/config.yml" ]; then
         # Replace the placeholder project name with actual directory name
-        if grep -q 'project_name: "CoupleLink"' backlog/config.yml; then
-            sed -i.tmp "s/project_name: \"CoupleLink\"/project_name: \"$PROJECT_NAME\"/" backlog/config.yml
-            rm -f backlog/config.yml.tmp
-            echo "   ✅ Project name set to: $PROJECT_NAME"
-        fi
+        # Use simple sed for extensive compatibility
+        sed -i.tmp "s/project_name: \".*\"/project_name: \"$PROJECT_NAME\"/" backlog/config.yml
+        rm -f backlog/config.yml.tmp
+        echo "   ✅ Project name set to: $PROJECT_NAME"
     fi
 
     # D. Documentation & Knowledge

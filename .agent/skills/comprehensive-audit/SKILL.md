@@ -45,6 +45,7 @@ For **EACH task** in the spec, perform these checks:
 |-------|----------|
 | **Completeness** | Were ALL subtasks completed? Check each `- [ ]` in the task file. |
 | **Accuracy** | Does the implementation match the original description EXACTLY? |
+| **Traceability** | Are implementation plan deviations recorded? Is Changelog updated? |
 | **Scope Creep** | Did I add anything NOT in the requirements? (Flag for review) |
 | **Scope Miss** | Did I miss anything that WAS in the requirements? |
 

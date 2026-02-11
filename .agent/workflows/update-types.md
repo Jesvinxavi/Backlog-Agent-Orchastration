@@ -12,4 +12,4 @@ This workflow keeps your frontend in sync with your database.
     *   *Note: Ask user for Project ID if unknown.*
 3.  **Commit.**
     *   `git add src/types/supabase.ts`
-    *   `git commit -m "chore: update database types"`
+    *   `git commit -m "chore: update database types" -m "- Regenerated TypeScript definitions from Supabase schema"`

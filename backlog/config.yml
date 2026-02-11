@@ -1,9 +1,10 @@
-project_name: "CoupleLink"
+project_name: "Agent-Template"
 default_status: "To Do"
 statuses: ["Thinking", "To Do", "In Progress", "In Review", "Done"]
 labels: ["Feature", "Bug", "Chore", "Refactor", "Documentation", "Agent", "Frontend", "Backend", "Supabase"]
-milestones: []
-date_format: yyyy-mm-dd
+milestones: ["Phase 1: Foundation", "Phase 2: MVP"]
+
+date_format: YYYY-MM-DD
 max_column_width: 20
 auto_open_browser: false
 default_port: 6420
@@ -12,3 +13,4 @@ auto_commit: false
 bypass_git_hooks: true
 check_active_branches: true
 active_branch_days: 30
+task_prefix: "task"

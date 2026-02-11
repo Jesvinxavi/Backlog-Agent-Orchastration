@@ -8,7 +8,7 @@ This workflow picks up a task from the backlog and prepares for implementation.
 ---
 
 ## 0. Read the Hive Mind
-- Read `backlog/KNOWLEDGE.md` to understand past lessons and gotchas.
+- Read `docs/KNOWLEDGE.md` to understand past lessons and gotchas.
 - Apply any relevant knowledge to the upcoming task.
 
 ---

@@ -27,13 +27,22 @@ It converts a raw idea into a production-ready codebase.
 ---
 
 ## 2. Generate Core Documents
-Create these in `backlog/specs/project/`:
-- `PRD.md` (Product Requirements)
-- `TECH-SPEC.md` (Stack, Schema, API)
-- `ARCHITECTURE.md` (Diagrams, Data Flow)
+Create these in `docs/`:
+- `docs/planning/PRD.md` (Product Requirements)
+- `docs/architecture/TECH-SPEC.md` (Stack, Schema, API)
+- `docs/architecture/ARCHITECTURE.md` (Diagrams, Data Flow)
+- `docs/planning/IMPLEMENTATION-PLAN.md` (Phased execution roadmap)
+- `docs/planning/POTENTIAL-FUTURE-FEATURES.md` (Future ideas tracking)
 
 > [!IMPORTANT]
-> **User Review Point**: Pause here. Ask user to review these docs. Do not proceed to code until approved.
+> **IMPLEMENTATION-PLAN.md Requirements:**
+> - Must include PRD Traceability Matrix mapping EVERY User Story (US-XX) and Feature (F-XX)
+> - Each phase must have detailed numbered sub-steps
+> - Each step must include: Purpose, PRD Reference, Detailed Actions, Expected Outcome, Verification
+> - Include Verification Plan and Execution Order Summary with time estimates
+
+> [!IMPORTANT]
+> **User Review Point**: Pause here. Ask user to review all 4 docs. Do not proceed to code until approved.
 
 ---
 
@@ -60,7 +69,7 @@ Create these in `backlog/specs/project/`:
 ---
 
 ## 3. Project Bootstrap (Scaffold)
-**Once approved, execute the setup:**
+**Once approved, execute the setup following IMPLEMENTATION-PLAN.md:**
 
 1.  **Initialize Repo**:
     - `npm create vite@latest` (or selected stack)
@@ -82,7 +91,12 @@ Create these in `backlog/specs/project/`:
 ---
 
 ## 4. Final Handover
-1.  Commit changes: `feat: project initialization`.
+1.  **Commit changes:**
+    ```bash
+    git commit -m "feat: project initialization" -m "- Initialized repository structure
+    - Created backlog and spec directories
+    - Installed initial dependencies"
+    ```
 2.  Notify user: "Project is ready. You can now use `/create-task-spec` for individual features."
 
 ---
@@ -91,11 +105,14 @@ Create these in `backlog/specs/project/`:
 
 - [ ] Vision defined (one-sentence pitch)
 - [ ] Stack selected and confirmed by user
-- [ ] PRD.md created in `backlog/specs/project/`
-- [ ] TECH-SPEC.md created in `backlog/specs/project/`
-- [ ] ARCHITECTURE.md created in `backlog/specs/project/`
-- [ ] User has reviewed and approved all 3 docs
+- [ ] PRD.md created in `docs/`
+- [ ] TECH-SPEC.md created in `docs/`
+- [ ] ARCHITECTURE.md created in `docs/`
+- [ ] IMPLEMENTATION-PLAN.md created in `docs/` with:
+  - [ ] PRD Traceability Matrix (all US-XX and F-XX mapped)
+  - [ ] Detailed phased steps with verification
+  - [ ] Execution Order Summary with time estimates
+- [ ] User has reviewed and approved all 4 docs
 - [ ] Repo initialized with correct structure
 - [ ] Dependencies installed
 - [ ] Initial commit made
-

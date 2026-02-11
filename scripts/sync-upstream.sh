@@ -1,87 +1,134 @@
 #!/bin/bash
-# =================================================================================
-# AGENT SKILLS SYNC-BACK SCRIPT
-# =================================================================================
-# Use this script to push your local project's agent improvements back to your
-# central 'agent-skills' repository.
-#
-# Usage: ./scripts/sync-upstream.sh [path/to/agent-skills-repo]
-# =================================================================================
 
-set -e
+# SYNC UPSTREAM SCRIPT
+# usage: ./scripts/sync-upstream.sh <path-to-target-repo>
+# example: ./scripts/sync-upstream.sh ../Backlog-Agent-Orchestration
 
-# Default to sibling directory if not provided
-TARGET_REPO="$1"
+TARGET_REPO=$1
 
-# 1. Resolve Target Repo
 if [ -z "$TARGET_REPO" ]; then
-    echo "🤔 Where is your central 'agent-skills' repository located?"
-    echo "   (Press Enter to check default: ../agent-skills)"
-    read -r USER_INPUT
-    TARGET_REPO="${USER_INPUT:-../agent-skills}"
-fi
-
-# Resolve absolute path
-if [[ "$TARGET_REPO" != /* ]]; then
-    TARGET_REPO="$(pwd)/$TARGET_REPO"
-fi
-
-# 2. Validation
-if [ ! -d "$TARGET_REPO/.git" ]; then
-    echo "❌ Error: '$TARGET_REPO' is not a valid Git repository."
-    echo "   Please clone your central repo first: git clone https://github.com/Jesvinxavi/Backlog-Agent-Orchastration.git"
+    echo "Usage: ./scripts/sync-upstream.sh <path-to-target-repo>"
     exit 1
 fi
 
-if [ ! -d "$TARGET_REPO/.agent/skills" ]; then
-    echo "❌ Error: Target repo does not look like the agent-skills package (missing .agent/skills)."
+if [ ! -d "$TARGET_REPO" ]; then
+    echo "Error: Target directory '$TARGET_REPO' does not exist."
     exit 1
 fi
 
-echo "🚀 Syncing changes FROM $(pwd) TO $TARGET_REPO..."
+echo "🚀 Syncing skills and workflows to $TARGET_REPO..."
 
-# 3. The Sync (Rsync with update flag to only copy newer files, but simple cp is safer for "overwriting upstream")
-# We want to overwrite upstream with OUR valid changes.
+# ==============================================================================
+# 1. Sync Files
+# ==============================================================================
 
-# Sync Skills
-echo "📦 Syncing Skills..."
-cp -R .agent/skills/* "$TARGET_REPO/.agent/skills/"
+echo "📂 Copying files..."
+
+# Sync Skills (delete extraneous in target to keep clean)
+rsync -av --delete --exclude '.DS_Store' .agent/skills/ "$TARGET_REPO/.agent/skills/"
 
 # Sync Workflows
-echo "⚡ Syncing Workflows..."
-cp -R .agent/workflows/* "$TARGET_REPO/.agent/workflows/"
+rsync -av --delete --exclude '.DS_Store' .agent/workflows/ "$TARGET_REPO/.agent/workflows/"
 
-# Sync Config
-echo "⚙️  Syncing Config..."
+# Sync Config & Templates
 cp backlog/config.yml "$TARGET_REPO/backlog/config.yml"
 cp backlog/AGENTS.md "$TARGET_REPO/backlog/AGENTS.md"
 
-# Sync Templates
-if [ -d "backlog/templates" ]; then
-    echo "📝 Syncing Templates..."
-    # Ensure dir exists
-    mkdir -p "$TARGET_REPO/backlog/templates"
-    cp -R backlog/templates/* "$TARGET_REPO/backlog/templates/"
+# Sync Templates directory
+rsync -av --delete --exclude '.DS_Store' backlog/templates/ "$TARGET_REPO/backlog/templates/"
+
+# Sync System Docs
+mkdir -p "$TARGET_REPO/backlog/docs"
+cp backlog/docs/SKILLS-SYSTEM.md "$TARGET_REPO/backlog/docs/SKILLS-SYSTEM.md"
+# Optional: Sync KNOWLEDGE-STARTER if it exists
+if [ -f "backlog/docs/KNOWLEDGE-STARTER.md" ]; then
+    cp backlog/docs/KNOWLEDGE-STARTER.md "$TARGET_REPO/backlog/docs/KNOWLEDGE-STARTER.md"
 fi
 
-# Sync Docs
-echo "📚 Syncing Docs..."
-cp backlog/docs/SKILLS-SYSTEM.md "$TARGET_REPO/backlog/docs/"
-if [ -f "backlog/KNOWLEDGE.md" ]; then
-    # We DON'T sync KNOWLEDGE.md fully, as it's project specific, 
-    # BUT we might want to sync KNOWLEDGE-STARTER if we edited it.
-    # For now, let's leave KNOWLEDGE.md out to avoid polluting the template with project-specific logs.
-    echo "   (Skipping KNOWLEDGE.md as it is project-specific)"
-fi
+# ==============================================================================
+# 2. Sanitize Config
+# ==============================================================================
+echo "🧹 Sanitizing config.yml..."
+# Replace project name with generic template name using Mac-compatible sed
+sed -i '' 's/project_name: ".*"/project_name: "Agent-Template"/' "$TARGET_REPO/backlog/config.yml"
 
-# 4. Success Message
-echo ""
-echo "✅ Sync Complete!"
-echo "👉 Now go to the target repo and commit the changes:"
-echo ""
-echo "   cd $TARGET_REPO"
-echo "   git status"
-echo "   git add ."
-echo "   git commit -m 'feat: sync improvements from project XYZ'"
-echo "   git push"
-echo ""
+# Replace project-specific milestones with generic ones
+# Use perl for multi-line replacement of the milestones array
+perl -i -0777 -pe 's/milestones: \[.*?\]/milestones: ["Phase 1: Foundation", "Phase 2: MVP"]/gs' "$TARGET_REPO/backlog/config.yml"
+
+
+# ==============================================================================
+# 3. Sanitize Task Decomposer (Remove Project-Specific Context)
+# ==============================================================================
+echo "🧹 Sanitizing task-decomposer skill..."
+SKILL_FILE="$TARGET_REPO/.agent/skills/task-decomposer/SKILL.md"
+
+# Remove the block from "## Project-Specific Context: JezOS" up to "## Anti-Patterns"
+# Using perl for reliable multi-line replacement
+perl -i -0777 -pe 's/## Project-Specific Context: JezOS.*?(?=## Anti-Patterns)//gs' "$SKILL_FILE"
+
+# ==============================================================================
+# 4. Standardize Paths (backlog/specs -> docs/)
+# ==============================================================================
+echo "❤️  Standardizing paths to 'docs/' structure..."
+
+# Define files that need path updates
+FILES_TO_UPDATE=(
+    "$TARGET_REPO/.agent/skills/project-decomposer/SKILL.md"
+    "$TARGET_REPO/.agent/skills/task-decomposer/SKILL.md"
+    "$TARGET_REPO/.agent/workflows/create-project-spec.md"
+)
+
+for FILE in "${FILES_TO_UPDATE[@]}"; do
+    if [ -f "$FILE" ]; then
+        echo "   Processing $FILE..."
+        
+        # 1. Replace base path
+        sed -i '' 's|backlog/specs/project/|docs/|g' "$FILE"
+        
+        # 2. Correct specific file paths to subdirectories
+        # PRD -> docs/planning/PRD.md
+        sed -i '' 's|`docs/PRD.md`|`docs/planning/PRD.md`|g' "$FILE"
+        sed -i '' 's|docs/PRD.md|docs/planning/PRD.md|g' "$FILE"
+        
+        # TECH-SPEC -> docs/architecture/TECH-SPEC.md
+        sed -i '' 's|`docs/TECH-SPEC.md`|`docs/architecture/TECH-SPEC.md`|g' "$FILE"
+        sed -i '' 's|docs/TECH-SPEC.md|docs/architecture/TECH-SPEC.md|g' "$FILE"
+        
+        # ARCHITECTURE -> docs/architecture/ARCHITECTURE.md
+        sed -i '' 's|`docs/ARCHITECTURE.md`|`docs/architecture/ARCHITECTURE.md`|g' "$FILE"
+        sed -i '' 's|docs/ARCHITECTURE.md|docs/architecture/ARCHITECTURE.md|g' "$FILE"
+        
+        # IMPLEMENTATION-PLAN -> docs/planning/IMPLEMENTATION-PLAN.md
+        sed -i '' 's|`docs/IMPLEMENTATION-PLAN.md`|`docs/planning/IMPLEMENTATION-PLAN.md`|g' "$FILE"
+        sed -i '' 's|docs/IMPLEMENTATION-PLAN.md|docs/planning/IMPLEMENTATION-PLAN.md|g' "$FILE"
+        
+        # POTENTIAL-FUTURE-FEATURES -> docs/planning/POTENTIAL-FUTURE-FEATURES.md
+        sed -i '' 's|`docs/POTENTIAL-FUTURE-FEATURES.md`|`docs/planning/POTENTIAL-FUTURE-FEATURES.md`|g' "$FILE"
+        sed -i '' 's|docs/POTENTIAL-FUTURE-FEATURES.md|docs/planning/POTENTIAL-FUTURE-FEATURES.md|g' "$FILE"
+        
+        # 3. Beautify headers in project-decomposer (Specific logic)
+        sed -i '' 's|### 1. PRD.md|### 1. `docs/planning/PRD.md`|g' "$FILE"
+        sed -i '' 's|### 2. TECH-SPEC.md|### 2. `docs/architecture/TECH-SPEC.md`|g' "$FILE"
+        sed -i '' 's|### 3. ARCHITECTURE.md|### 3. `docs/architecture/ARCHITECTURE.md`|g' "$FILE"
+        sed -i '' 's|### 4. IMPLEMENTATION-PLAN.md|### 4. `docs/planning/IMPLEMENTATION-PLAN.md`|g' "$FILE"
+        sed -i '' 's|### 5. POTENTIAL-FUTURE-FEATURES.md|### 5. `docs/planning/POTENTIAL-FUTURE-FEATURES.md`|g' "$FILE"
+
+        # 4. Handle list items in create-project-spec (Specific logic)
+        sed -i '' 's|- `PRD.md`|- `docs/planning/PRD.md`|g' "$FILE"
+        sed -i '' 's|- `TECH-SPEC.md`|- `docs/architecture/TECH-SPEC.md`|g' "$FILE"
+        sed -i '' 's|- `ARCHITECTURE.md`|- `docs/architecture/ARCHITECTURE.md`|g' "$FILE"
+        sed -i '' 's|- `IMPLEMENTATION-PLAN.md`|- `docs/planning/IMPLEMENTATION-PLAN.md`|g' "$FILE"
+        sed -i '' 's|- `POTENTIAL-FUTURE-FEATURES.md`|- `docs/planning/POTENTIAL-FUTURE-FEATURES.md`|g' "$FILE"
+    fi
+done
+
+# ==============================================================================
+# 5. Copy Scripts (Updated Scaffold)
+# ==============================================================================
+echo "📜 Syncing scripts..."
+rm -rf "$TARGET_REPO/scripts"
+mkdir -p "$TARGET_REPO/scripts"
+cp -R scripts/* "$TARGET_REPO/scripts/"
+
+echo "✅ Sync Complete! Review changes in $TARGET_REPO before pushing."

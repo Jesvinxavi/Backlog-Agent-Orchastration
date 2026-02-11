@@ -78,22 +78,19 @@ Load `.agent/skills/quality-gate/SKILL.md`
 
 ---
 
-## 6. Run Self-Reflection Skill
+## 6. Run Self-Reflection Skill (Knowledge Aggregation)
 Load `.agent/skills/self-reflection/SKILL.md`
 
-**Preparation:**
-- **CRITICAL:** You must READ all `backlog/tasks/task-*.md` files associated with this spec.
-- Do not rely solely on your memory or the last task's context.
-- Extract "Lessons Learned" or specific nuances from each task description and completion notes.
+**Context:**
+Tasks in this spec should already have a `## Reflection` section appended to them (from the `/commit-task` workflow).
 
-**Answer these questions for the ENTIRE spec (holistic view):**
-- What went well across all tasks?
-- What could improve?
-- What patterns emerged?
-- Any architectural insights?
+**Action:**
+1. **Read all task files** associated with this spec (`backlog/tasks/task-*.md`).
+2. **Extract** the "Lessons Learned" and "Improvement" points from each task's `## Reflection` section.
+3. **Consolidate** these into high-level patterns for the project.
+4. **Append** only the most valuable, project-wide lessons to `docs/KNOWLEDGE.md`.
 
-**Capture at least 2-3 lessons learned.**
-Append to `backlog/KNOWLEDGE.md` under the appropriate category.
+*Note: Do not copy every minor task detail. Filter for architectural insights, reusable patterns, or critical "gotchas".*
 
 ---
 
@@ -109,8 +106,15 @@ Append to `backlog/KNOWLEDGE.md` under the appropriate category.
 
 ---
 
+## 9. Capture Potential Future Features
+- Reflect on the work just completed.
+- Did you identify any potential features or architectural improvements that were out of scope for this spec but would be valuable?
+- If yes, append them to `backlog/specs/project/POTENTIAL-FUTURE-FEATURES.md` following the template in that file.
 
-## 9. Merge Strategy
+---
+
+
+## 10. Merge Strategy
 
 | Spec Type | Action |
 |-----------|--------|
@@ -126,10 +130,19 @@ git push
 
 ---
 
-## 10. Update Spec Status
+## 11. Update Changelog (Feature Completion)
+1. **Load `changelog-manager` skill:** (`.agent/skills/changelog-manager/SKILL.md`)
+2. **Execute Update:**
+   - Add entry for spec completion.
+   - **Format:** `[YYYY-MM-DD] **[Spec-Completed]**: <Spec Name> (Deviations: N/A)`
+   - Ensure it is placed under `## [Unreleased]`.
+
+---
+
+## 12. Update Spec Status
 - Add completion timestamp to spec file
 - Mark all related tasks as Done (if not already)
-- Commit: `chore: complete spec <spec-name>`
+- Commit: `git commit -m "chore: complete spec <spec-name>" -m "- Verified all tasks complete - Passed comprehensive audit - Updated KNOWLEDGE.md and status docs"`
 
 ---
 
@@ -140,4 +153,5 @@ git push
 - [ ] Tests pass (if required)
 - [ ] Self-reflection completed
 - [ ] KNOWLEDGE.md updated
+- [ ] Changelog updated with spec completion entry
 - [ ] Feature branch merged (if applicable)

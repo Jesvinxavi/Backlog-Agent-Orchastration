@@ -91,20 +91,43 @@ skills: [skill-name]
 spec: backlog/specs/feature-name.md  # REQUIRED: Link back to parent spec
 related_adr: backlog/decisions/adr-name.md  # Optional: If architectural change
 branch: feature/spec-name  # REQUIRED if >2 tasks, else 'main'
+milestone: "Milestone Name"  # REQUIRED if task belongs to a milestone (must match config.yml)
+verification: auto  # REQUIRED: 'auto' or 'manual' (see Verification Mode below)
 ---
 ```
+
+**Verification Mode (`verification:` field):**
+| Value | When to Use |
+|-------|-------------|
+| `auto` | Build passes = verified. No human check needed. (e.g., pure logic, refactoring, documentation) |
+| `manual` | Requires human verification. (e.g., UI changes, visual design, mobile responsiveness, user-facing flows) |
+
+> [!IMPORTANT]
+> **Autonomous Execution (`/execute-spec`) will STOP if it encounters a task with `verification: manual`.**
+> Use this field to protect tasks that require visual or subjective review.
 
 **Task Body:**
 ```markdown
 ## Description
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Brief description of the task.
-<!-- SECTION:DESCRIPTION:END -->
 
 ## Context
 - **Spec:** [Feature Name](file:///path/to/backlog/specs/feature-name.md)
+- **Phase:** [Step # from Implementation Plan] (file:///path/to/backlog/specs/project/IMPLEMENTATION-PLAN.md)
 - **ADR:** [Decision Name](file:///path/to/backlog/decisions/adr-name.md) (if applicable)
 - **Branch:** `feature/spec-name` (or `main` if ≤2 tasks)
+
+## Detailed Actions (Required)
+<!-- Copy checklist from Implementation Plan if applicable -->
+- [ ] Action 1
+- [ ] Action 2
+
+## Expected Outcome
+- [Description of final state]
+
+## Verification Plan
+- [ ] Autos-test command / Manual check step
 
 ## Subtasks
 - [ ] Subtask 1
@@ -112,11 +135,78 @@ Brief description of the task.
 
 ## Skills Sequence
 1. `skill-name` - Why this skill
+<!-- SECTION:DESCRIPTION:END -->
 ```
 
+### Milestone Logic (CRITICAL)
+
+**Determine if a Milestone is needed BEFORE generating tasks:**
+
+| Scenario | Milestone Action |
+|----------|------------------|
+| **Decomposing a full Phase** from `IMPLEMENTATION-PLAN.md` | **Create Milestone file** + register in config.yml |
+| **Large Feature (> 10 tasks)** | **Create Milestone file** to group related tasks |
+| **Partial work within an existing Phase** | **Ask user** which milestone to assign tasks to |
+| **Small independent feature** (< 10 tasks, not part of a phase) | No milestone needed |
+
+> [!IMPORTANT]
+> **Backlog Browser Compatibility:** Tasks MUST be in `backlog/tasks/` to appear in the browser dashboard.
+> Use the `milestone:` frontmatter field to group tasks, NOT nested folders.
+
+**Folder Structure:**
+```
+backlog/
+├── tasks/                              # ALL tasks go here
+│   ├── task-1 - Create-VM.md           # With milestone: field in frontmatter
+│   ├── task-2 - Network.md
+│   └── ...
+├── milestones/                         # Milestone metadata files
+│   └── milestone-1 - Phase-Name.md
+└── specs/
+```
+
+**Milestone File Format:** `backlog/milestones/milestone-N - Phase-Name.md`
+```yaml
+---
+id: milestone-1
+title: "Phase 1: Oracle Cloud Infrastructure"
+status: Not Started
+created_date: 'YYYY-MM-DD HH:MM'
+phase_ref: Phase 1 (from IMPLEMENTATION-PLAN.md)
+tasks: [task-1, task-2, task-3, task-4, task-5]
+spec: backlog/specs/feature-name.md
+branch: feature/phase1-name
+---
+
+## Description
+Brief description of what this milestone achieves.
+
+## Tasks in this Milestone
+- [ ] [Task-1: Title](../tasks/task-1%20-%20Title.md)
+- [ ] [Task-2: Title](../tasks/task-2%20-%20Title.md)
+
+## Completion Criteria
+- All tasks completed
+- Verification plan passed
+```
+
+**Also register in `backlog/config.yml`:**
+```yaml
+milestones: ["Phase 1: Oracle Cloud Infrastructure"]
+```
+
+**Clarifying Question (for partial work):**
+> "I see you're adding tasks related to [topic]. Should these belong to an existing milestone?
+> - **A)** Assign to `Phase 1: Oracle Cloud Infrastructure`
+> - **B)** Create new milestone
+> - **C)** No milestone (standalone tasks)"
+
+---
+
 ### Task Generation Rules
-- **Small Feature (< 10 tasks)**: Generate tasks directly.
-- **Large Feature (> 10 tasks)**: Create a Milestone first.
+- **ALL tasks** → Create in `backlog/tasks/`
+- **Tasks with milestone** → Add `milestone: "Milestone Name"` to frontmatter
+- **Implementation Plan Tasks** → You MUST copy the "Detailed Actions" from the plan into a `## Detailed Actions (Required)` section in the task body.
 - **ALWAYS create physical files** - Never just document in the spec.
 - **Bi-directional Linking**: After creating task files, append a list of them to the Spec file:
 
@@ -171,6 +261,15 @@ git checkout -b feature/<spec-name>
 
 ---
 
+## 10. Commit Generated Files (REQUIRED)
+- **Review:** Use `git status` to check the created files.
+- **Stage:** `git add backlog/specs/*.md backlog/tasks/*.md backlog/milestones/*.md`
+- **Commit:** `git commit -m "docs: generate spec and tasks for <feature-name>" -m "- Generated spec file: backlog/specs/feature-<name>.md
+- Generated task files for implementation
+- Initialized feature branch"`
+
+---
+
 ## Definition of Done (Spec Complete When)
 
 - [ ] All clarifying questions answered
@@ -181,6 +280,7 @@ git checkout -b feature/<spec-name>
 - [ ] **Task FILES created in `backlog/tasks/`** (not just documented)
 - [ ] Testing strategy documented
 - [ ] ADR created (if architectural change)
+- [ ] **Generated artifacts committed** (specs, tasks, milestones)
 - [ ] **Feature branch created** (if >2 tasks)
 
 ---

@@ -114,7 +114,7 @@ Before finalizing a new skill:
 ## Memory Integration
 
 After creating a skill:
-1. Log in `backlog/KNOWLEDGE.md`:
+1. Log in `docs/KNOWLEDGE.md`:
    ```
    ## 🎯 Skills Created
    - [YYYY-MM-DD] Created `<skill-name>` skill to address <problem>

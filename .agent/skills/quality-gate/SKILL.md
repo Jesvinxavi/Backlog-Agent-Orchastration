@@ -67,6 +67,10 @@ Review applicable skill checklists:
 - [ ] New functionality tested (manually or automated)
 - [ ] Edge cases verified
 
+### 6. Process Compliance (CRITICAL)
+- [ ] **Implementation Plan Deviations**: Recorded in task file? (or confirmed none)
+- [ ] **Changelog Updated**: Entry added to `CHANGELOG.md`?
+
 ---
 
 ## Gate Results
@@ -97,6 +101,10 @@ Before marking complete, answer:
 ### Self-Assessment
 - Confidence: [High/Medium/Low]
 - Concerns: [Any remaining concerns]
+
+### Process Compliance
+- [ ] Plan deviations recorded (if any)
+- [ ] CHANGELOG.md updated
 
 ### Ready for Review
 - [ ] Yes, all gates passed

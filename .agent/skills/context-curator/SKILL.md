@@ -25,6 +25,7 @@ Maintain healthy, organized project memory.
 - Read entire KNOWLEDGE.md
 - Count entries per category
 - Identify outdated information
+- Review `POTENTIAL-FUTURE-FEATURES.md` for validity
 
 ### 2. Categorization Health Check
 
@@ -36,6 +37,7 @@ Standard categories:
 ## 🚀 Deployment & DevOps
 ## 📦 Dependencies & Tooling
 ## 🎯 Skills Created
+## 🔮 Potential Future Features
 ## General Lessons Learned
 ```
 

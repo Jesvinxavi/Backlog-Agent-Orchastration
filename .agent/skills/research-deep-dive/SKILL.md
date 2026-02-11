@@ -13,7 +13,7 @@ Load this skill when you need to thoroughly understand a problem before coding.
    - Use `search_web` for external patterns and documentation
    - Use `grep_search` to find related code in codebase
    - Use `view_file_outline` to understand file structures
-   - Read `backlog/KNOWLEDGE.md` for past lessons
+   - Read `docs/KNOWLEDGE.md` for past lessons
 
 2. **Structured Investigation**
    - Define the question clearly before searching

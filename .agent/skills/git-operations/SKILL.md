@@ -19,8 +19,12 @@ Load this skill for version control operations.
    ```
    <type>(<scope>): <description>
    
-   [optional body]
+   - <Verification/Change Detail 1>
+   - <Verification/Change Detail 2>
    ```
+   
+   **CRITICAL: Always include a body with `-m`.**
+   `git commit -m "feat: title" -m "- detail 1"`
    
    Types:
    - `feat` - New feature
